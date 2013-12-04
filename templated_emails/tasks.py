@@ -30,8 +30,7 @@ class LanguageStoreNotAvailable(Exception):
     pass
 
 
-def send(recipient_pks, recipient_emails, template_path, context, from_email,
-          fail_silently):
+def send(recipient_pks, recipient_emails, template_path, context, from_email, fail_silently):
     recipients = list(User.objects.filter(pk__in=recipient_pks))
     recipients += recipient_emails
 
@@ -91,6 +90,8 @@ def send(recipient_pks, recipient_emails, template_path, context, from_email,
 
 if use_celery:
     send_task = task(send)
+else:
+    send_task = send
 
 
 def get_users_language(user):
