@@ -16,14 +16,15 @@ try:
 except ImportError:
     from django.contrib.auth.models import User
 
-try:
-    from djcelery import celery
-    task = celery.task
-except ImportError:
-    task = lambda f: f
-
-
 use_celery = getattr(settings, 'TEMPLATEDEMAILS_USE_CELERY', False)
+task = lambda f: f
+
+if use_celery:
+    try:
+        from djcelery import celery
+        task = celery.task
+    except ImportError:
+        pass
 
 
 class LanguageStoreNotAvailable(Exception):
@@ -88,10 +89,7 @@ def send(recipient_pks, recipient_emails, template_path, context, from_email, fa
         if isinstance(recipient, User):
             activate(current_language)
 
-if use_celery:
-    send_task = task(send)
-else:
-    send_task = send
+send_task = task(send)
 
 
 def get_users_language(user):
